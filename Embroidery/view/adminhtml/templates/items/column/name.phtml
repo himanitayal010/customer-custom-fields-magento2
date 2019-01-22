@@ -1,0 +1,89 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<?php
+/**
+ * @see \Magento\Sales\Block\Adminhtml\Items\Column\Name
+ */
+?>
+
+<?php if ($_item = $block->getItem()): ?>
+    <div id="order_item_<?= $block->escapeHtml($_item->getId()) ?>_title"
+         class="product-title">
+        <?= $block->escapeHtml($_item->getName()) ?>
+    </div>
+    <div class="product-sku-block">
+        <span><?= $block->escapeHtml(__('SKU'))?>:</span> <?= implode('<br />', $this->helper('Magento\Catalog\Helper\Data')->splitSku($block->escapeHtml($block->getSku()))) ?>
+    </div>
+
+    <?php if ($block->getOrderOptions()): ?>
+        <dl class="item-options">
+            <?php foreach ($block->getOrderOptions() as $_option): ?>
+                <dt><?= $block->escapeHtml($_option['label']) ?>:</dt>
+                <dd>
+                    <?php if (isset($_option['custom_view']) && $_option['custom_view']): ?>
+                        <?= $block->escapeHtml($block->getCustomizedOptionValue($_option)) ?>
+                    <?php else: ?>
+                        <?php $_option = $block->getFormattedOption($_option['value']); ?>
+                        <?= $block->escapeHtml($_option['value']) ?>
+                        <?php if (isset($_option['remainder']) && $_option['remainder']): ?>
+                            <?php $dots = 'dots' . uniqid(); ?>
+                            <span id="<?= /* @noEscape */ $dots; ?>"> ...</span>
+                            <?php  $id = 'id' . uniqid(); ?>
+                            <span id="<?= /* @noEscape */ $id; ?>"><?= $block->escapeHtml($_option['remainder']) ?></span>
+                            <script>
+                                require(['prototype'], function(){
+                                    $('<?= /* @noEscape */ $id; ?>').hide();
+                                    $('<?= /* @noEscape */ $id; ?>').up().observe('mouseover', function(){$('<?= /* @noEscape */ $id; ?>').show();});
+                                    $('<?= /* @noEscape */ $id; ?>').up().observe('mouseover', function(){$('<?= /* @noEscape */ $dots; ?>').hide();});
+                                    $('<?= /* @noEscape */ $id; ?>').up().observe('mouseout',  function(){$('<?= /* @noEscape */ $id; ?>').hide();});
+                                    $('<?= /* @noEscape */ $id; ?>').up().observe('mouseout',  function(){$('<?= /* @noEscape */ $dots; ?>').show();});
+                                });
+                            </script>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </dd>
+            <?php endforeach; ?>
+        </dl>
+    <?php endif; ?>
+    
+    <?php
+    $quote_item_id = $_item->getQuoteItemId();
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+    $connection = $resource->getConnection();
+    $magneto_quote = $resource->getTableName('magneto_quote');
+    $sql = "Select * FROM " . $magneto_quote . " WHERE quote_item_id = " . $quote_item_id;
+    $result_embroidery = $connection->fetchAll($sql);
+
+    if($result_embroidery != ' '){ 
+        $decode_data = array();
+        foreach($result_embroidery as $embroidery){
+            $jsonHelper = $objectManager->get('\Magento\Framework\Json\Helper\Data');
+            $embroidery_decode = $jsonHelper->jsonDecode($embroidery['name_embroidery']);
+            $decode_data = $embroidery_decode;
+        }
+        foreach ($decode_data as $value_emb) { ?>
+            <dl class="embroidery-options item-options" style="text-transform: capitalize;">
+            <dt><strong><?= $block->escapeHtml($value_emb['line']) ?></strong></dt>
+            <dt><?= $block->escapeHtml(__('Font :  ')) ?></dt>
+                <dd><?= $block->escapeHtml($value_emb['font']) ?></dd>
+            <dt><?= $block->escapeHtml(__('Color :  ')) ?></dt>
+                <dd><?= $block->escapeHtml($value_emb['color']) ?></dd>
+            <dt><?= $block->escapeHtml(__('Placement :  ')) ?></dt>
+                <dd><?= $block->escapeHtml($value_emb['placement']) ?></dd>
+            <dt><?= $block->escapeHtml(__('Text :  ')) ?></dt>
+                <dd><?= $block->escapeHtml($value_emb['name_text']) ?></dd>
+            <dt><?= $block->escapeHtml(__('Comments :  ')) ?></dt>
+                <dd><?= $block->escapeHtml($value_emb['comment']) ?></dd>
+            </dl>
+        <?php }
+    } ?>
+    <?= $block->escapeHtml($_item->getDescription()) ?>
+<?php endif; ?>

@@ -1,0 +1,495 @@
+<?php
+/**
+* Copyright © 2016 Magento. All rights reserved.
+* See COPYING.txt for license details.
+*/
+
+// @codingStandardsIgnoreFile
+
+/** @var $block \Magento\Catalog\Block\Product\View */
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+    $_helper = $this->helper('Magento\Catalog\Helper\Output');
+    $_product = $block->getProduct();
+    $_call = $block->getAtCall();
+    $_code = $block->getAtCode();
+    $_className = $block->getCssClass();
+    $categoryCollection = $objectManager->get('\Magento\Catalog\Model\ResourceModel\Category\CollectionFactory');
+    $buttonTitle = __('Add to s');
+?>
+<?php if ($_product->isSaleable()): ?>
+<div class="box-tocart">
+    <div class="fieldset">
+        <?php if ($block->shouldRenderQuantity()): ?>
+        <div class="field qty">
+            <label class="label" for="qty"><span><?php /* @escapeNotVerified */ echo __('Qty') ?></span></label>
+            <div class="control">
+                <!-- <input type="number"
+                       name="qty"
+                       id="qty"
+                       value="<?= /* @escapeNotVerified */ $block->getProductDefaultQty() * 1 ?>"
+                       title="<?= /* @escapeNotVerified */ __('Quantity') ?>"
+                       class="input-text qty"
+                       data-validate="{required:true,'validate-greater-than-zero':true}"
+                       /> -->
+                <select class="input-text qty" name="qty" id="qty">
+                    <?php $i = 1 ?>
+                    <?php do { ?>
+                        <option value="<?php echo $i?>">
+                            <?php echo $i?>
+                            <?php $i++ ?>
+                        </option>
+                    <?php } while ($i <= 10) ?>
+                </select>
+            </div>
+        </div>
+        <?php endif; ?>
+        <div class="actions" id="add-action">
+            <button type="submit"
+            name="add_to_cart"
+                    title="<?php /* @escapeNotVerified */ echo $buttonTitle ?>"
+                    class="action primary tocart"
+                    id="product-addtocart-button" value="add_to_cart">
+                <?php /* @escapeNotVerified */ echo $buttonTitle ?>
+            </button>
+            <?php echo $block->getChildHtml('', true) ?>
+        </div>
+        
+</div>
+</div>
+
+<?php endif; ?>
+<script type="text/x-magento-init">
+    {
+        "#product_addtocart_form": {
+            "Magento_Catalog/product/view/validation": {
+                "radioCheckboxClosest": ".nested"
+            }
+        }
+    }
+</script>
+<?php if (!$block->isRedirectToCartEnabled()) : ?>
+<script type="text/x-magento-init">
+    {
+        "#product_addtocart_form": {
+            "catalogAddToCart": {
+                "bindSubmit": false
+            }
+        }
+    }
+</script>
+
+<?php endif; ?>
+
+<!-- Custom Input Field -->
+<style type="text/css">
+.box{
+color: #000;
+padding: 20px;
+display: none;
+margin-top: 20px;
+}
+.red{ background: ##f4f4f2; }
+/*.green{ background: #228B22; }
+.blue{ background: #0000ff; }*/
+</style>
+<script src="http://code.jquery.com/jquery-1.4.3.min.js" ></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $('input[type="checkbox"]').click(function(){
+        var inputValue = $(this).attr("value");
+        $("." + inputValue).toggle(); 
+    });
+});
+</script> 
+
+<label><input type="checkbox" name="colorCheckbox" value="red"> Embroidery</label>
+<div class="red box">
+   <h4>EMBROIDERY OPTIONS</h4>
+   <p>Please allow approximately 5 to 7 days to embroider your items.</p>
+<div id="embr_options_section" class="section">
+       <div class="b_heading lrg_txt">PLEASE SELECT UP TO 3 OF THE FOLLOWING EMBROIDERY OPTIONS TO BEGIN:</div>
+    <div>
+        <input checked="checked" id="opt1" name="Embr_Options" onclick="selectEmbrOption(this.value, true)" type="checkbox" value="1"><input name="Embr_Options" type="hidden" value="false"><label for="opt1">Name Embroidery</label>
+    </div>
+    <div>
+        <input id="opt2" name="Embr_Options" onclick="selectEmbrOption(this.value, true)" type="checkbox" value="2"><input name="Embr_Options" type="hidden" value="false"><label for="opt2">Stock Design</label>
+    </div>
+    <div>
+        <input id="opt4" name="Embr_Options" onclick="selectEmbrOption(this.value, true)" type="checkbox" value="4"><input name="Embr_Options" type="hidden" value="false"><label for="opt4">New Custom Logo</label>
+    </div>
+    <div>
+        <input id="opt8" name="Embr_Options" onclick="selectEmbrOption(this.value, true)" type="checkbox" value="8"><input name="Embr_Options" type="hidden" value="false"><label for="opt8">Flag Design</label>
+    </div>
+    <div>
+        <input id="opt16" name="Embr_Options" onclick="selectEmbrOption(this.value, true)" type="checkbox" value="16"><input name="Embr_Options" type="hidden" value="false"><label for="opt16">Initial Monogram</label>
+    </div>
+</div> 
+<div id="nameemroidery">
+    <div id="line1">
+        <p>NAME EMBROIDERY - $5.99 Per Line</p>
+    <div>
+        <label for="num_lines" class="lrg_txt">Number of lines: </label>
+        <select id="num_lines" name="num_lines" onchange="showDiv(this)">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </select>
+        <span class="input_hint">&nbsp;Please select the number of lines you would like embroidered.</span>
+    </div>
+        <label>Font Style:</label>
+    <div>
+    <div class="inline_container radio_list_container">
+        <div class="font_radio_btn_container">
+            <input id="namel1fontstyle01" name="namel1fontstyle" type="radio" value="Block">
+            <label for="Name_Line1_Font_F01" class="med_txt">F01<span>.</span></label>
+            <img id="namel1fontstyle01img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Block" title="Block" onclick="selectRadioOption('namel1fontstyle','F01','Block')" class="font_image">        
+        </div>
+        <div class="font_radio_btn_container">
+            <input id="namel1fontstyle02" name="namel1fontstyle" type="radio" value="Roman Script">
+            <label for="namel1fontstyle02img" class="med_txt">F02<span>.</span></label>
+            <img id="namel1fontstyle02img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Roman Script" title="Roman Script" onclick="selectRadioOption('namel1fontstyle','F02','Roman Script')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                   
+            <input id="namel1fontstyle03" name="namel1fontstyle" type="radio" value="Mistral Font">
+            <label for="Name_Line1_Font_F03" class="med_txt">F03<span>.</span></label>
+            <img id="namel1fontstyle03img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Mistral Font" title="Mistral Font" onclick="selectRadioOption('namel1fontstyle','F03','Mistral Font')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                   
+            <input id="namel1fontstyle04" name="namel1fontstyle" type="radio" value="Tudor">
+            <label for="Name_Line1_Font_F04" class="med_txt">F04<span>.</span></label>
+            <img id="namel1fontstyle04img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Tudor" title="Tudor" onclick="selectRadioOption('namel1fontstyle','F04','Tudor')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                   
+            <input id="namel1fontstyle05" name="namel1fontstyle" type="radio" value="Oriental Script">
+            <label for="Name_Line1_Font_F05" class="med_txt">F05<span>.</span></label>
+            <img id="namel1fontstyle05img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Oriental Script" title="Oriental Script" onclick="selectRadioOption('namel1fontstyle','F05','Oriental Script')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">
+            <input id="namel1fontstyle06" name="namel1fontstyle" type="radio" value="Book Antigua Font">
+            <label for="Name_Line1_Font_F06" class="med_txt">F06<span>.</span></label>
+            <img id="namel1fontstyle06img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Book Antigua Font" title="Book Antigua Font" onclick="selectRadioOption('namel1fontstyle','F06','Book Antigua Font')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                
+            <input id="namel1fontstyle07" name="namel1fontstyle" type="radio" value="Ribbon Dak">
+            <label for="Name_Line1_Font_F07" class="med_txt">F07<span>.</span></label>
+            <img id="namel1fontstyle07img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Ribbon Dak" title="Ribbon Dak" onclick="selectRadioOption('namel1fontstyle','F07','Ribbon Dak')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                  
+            <input id="namel1fontstyle08" name="namel1fontstyle" type="radio" value="Monotype Corsiva">
+            <label for="Name_Line1_Font_F08" class="med_txt">F08<span>.</span></label>
+            <img id="namel1fontstyle08img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Monotype Corsiva" title="Monotype Corsiva" onclick="selectRadioOption('namel1fontstyle','F08','Monotype Corsiva')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                  
+            <input id="namel1fontstyle09" name="namel1fontstyle" type="radio" value="Script">
+            <label for="Name_Line1_Font_F09" class="med_txt">F09<span>.</span></label>
+            <img id="namel1fontstyle09img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Script" title="Script" onclick="selectRadioOption('namel1fontstyle','F09','Script')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                  
+            <input id="namel1fontstyle10" name="namel1fontstyle" type="radio" value="Edwardian">
+            <label for="Name_Line1_Font_F10" class="med_txt">F10<span>.</span></label>
+            <img id="namel1fontstyle10img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Edwardian" title="Edwardian" onclick="selectRadioOption('namel1fontstyle','F10','Edwardian')" class="font_image"> 
+        </div>
+    </div>
+    <br/> 
+    <label id="choiceLabel"> Font Style :</label>
+    </div>
+<script type="text/javascript">
+(function (){
+var radios = document.getElementsByName('namel1fontstyle');
+console.log(radios);
+for(var i = 0; i < radios.length; i++){
+radios[i].onclick = function(){
+document.getElementById('choiceLabel').innerText = this.value;
+}
+}
+})(); 
+</script>
+<label>Thread Color:</label>          
+<div class="inline_container">
+<div id="v1">  
+  <label for="Name_Line1_Color" class="med_txt">Option Selected:</label>
+    <select class="clear_on_reset" id="namel1threadcolor" name="namel1threadcolor">
+        <option value="">Select Color</option>
+        <option value="Red">C01. Red</option>
+        <option value="Orange">C02. Orange</option>
+        <option value="Peach">C03. Peach</option>
+        <option value="Gold">C04. Gold</option>
+        <option value="Yellow">C05. Yellow</option>
+        <option value="Neon Yellow">C06. Neon Yellow</option>
+        <option value="Tan">C07. Tan</option>
+        <option value="Silver">C08. Silver</option>
+        <option value="Forest">C09. Forest</option>
+        <option value="Kelly Green">C10. Kelly Green</option>
+        <option value="Neon Green">C11. Neon Green</option>
+        <option value="Navy">C12. Navy</option>
+        <option value="Royal">C13. Royal</option>
+        <option value="Teal">C14. Teal</option>
+        <option value="Light Blue">C15. Light Blue</option>
+        <option value="White">C16. White</option>
+        <option value="Purple">C17. Purple</option>
+        <option value="Fushia">C18. Fushia</option>
+        <option value="Light Pink">C19. Light Pink</option>
+        <option value="Brown">C20. Brown</option>
+        <option value="Coffee">C21. Coffee</option>
+        <option value="Black">C22. Black</option>
+        <option value="Wine">C23. Wine</option>
+    </select>  
+</div>
+<div id="v2">
+     <label>Color Type:</label>
+</div>
+<script type="text/javascript">                           
+$("#namel1threadcolor").change(function() {
+$("#v2 label").html($(this).val());
+});
+</script>
+</div>
+<label>Placements :</label>
+<div class="inline_container">
+<p>Embroidery placement is referred to from the vantage point of person wearing the garment.</p>
+<div class="radio_list_container">                                        
+    <div class=""  onclick="togglePlacementSelection('namel1placement','P1L','Left Chest')">
+        <input id="namel1placementp1l" name="namel1placement" type="radio" value="Left Chest">
+        <label for="Name_Line1_Position_P1L" class="med_txt">Left Chest</label>
+    </div>                  
+    <div class="" onclick="togglePlacementSelection('namel1placement','P1R','Right Chest')">
+        <input id="namel1placementp1r" name="namel1placement" type="radio" value="Right Chest">
+        <label for="Name_Line1_Position_P1R" class="med_txt">Right Chest</label>
+    </div>                  
+    <div class=""  onclick="togglePlacementSelection('namel1placement','P2L','Left Sleeve')">
+        <input id="namel1placementp2l" name="namel1placement" type="radio" value="Left Sleeve">
+        <label for="Name_Line1_Position_P2L" class="med_txt underline_selection">Left Sleeve</label>
+    </div>                  
+    <div class=""  onclick="togglePlacementSelection('namel1placement','P2R','Right Sleeve')">
+        <input id="namel1placementp2r" name="namel1placement" type="radio" value="Right Sleeve">
+        <label for="Name_Line1_Position_P2R" class="med_txt">Right Sleeve</label>
+    </div>                  
+</div>
+<br/> 
+        <label id="choiceLabel1"> Placements :</label>
+</div>
+<script type="text/javascript">
+(function (){
+var radios = document.getElementsByName('namel1placement');
+console.log(radios);
+for(var i = 0; i < radios.length; i++){
+radios[i].onclick = function(){
+document.getElementById('choiceLabel1').innerText = this.value;
+}
+}
+})(); 
+</script> 
+<label>PLEASE ENTER TEXT EXACTLY AS YOU WOULD LIKE IT TO APPEAR:</label>
+<div>
+    <input class="input" type="text" name="namel1text" id="namel1text" maxlength="255" placeholder="Text" />
+</div>
+</div>
+<div id="line2" style="display: none;">
+    <label>Font Style:</label>
+<div>
+    <div class="radiolistlecontainer">
+        <div class="btn_container">
+                <input id="namel2fontstyle01" name="namel2fontstyle" type="radio" value="Block">
+                <label for="Name_Line2_Font_F01" class="medfg_txt">F01<span>.</span></label>
+                <img id="namel2fontstyle01img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Block" title="Block" onclick="selectRadioOption('namel1fontstyle','F01','Block')" class="font_image">        
+        </div>
+        <div class="font_radio_btn_container">
+                <input id="namel2fontstyle02" name="namel2fontstyle" type="radio" value="Roman Script">
+                <label for="namel2fontstyle02img" class="medfg_txt">F02<span>.</span></label>
+                <img id="namel2fontstyle02img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Roman Script" title="Roman Script" onclick="selectRadioOption('namel2fontstyle','F02','Roman Script')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                   
+                <input id="namel2fontstyle03" name="namel2fontstyle" type="radio" value="Mistral Font">
+                <label for="Name_Line2_Font_F03" class="medfg_txt">F03<span>.</span></label>
+                <img id="namel2fontstyle03img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Mistral Font" title="Mistral Font" onclick="selectRadioOption('namel2fontstyle','F03','Mistral Font')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                   
+                <input id="namel2fontstyle04" name="namel2fontstyle" type="radio" value="Tudor">
+                <label for="Name_Line2_Font_F04" class="medfg_txt">F04<span>.</span></label>
+                <img id="namel2fontstyle04img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Tudor" title="Tudor" onclick="selectRadioOption('namel2fontstyle','F04','Tudor')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                   
+                <input id="namel2fontstyle05" name="namel2fontstyle" type="radio" value="Oriental Script">
+                <label for="Name_Line2_Font_F05" class="medfg_txt">F05<span>.</span></label>
+                <img id="namel2fontstyle05img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Oriental Script" title="Oriental Script" onclick="selectRadioOption('namel2fontstyle','F05','Oriental Script')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">
+                <input id="namel2fontstyle06" name="namel2fontstyle" type="radio" value="Book Antigua Font">
+                <label for="Name_Line2_Font_F06" class="medfg_txt">F06<span>.</span></label>
+                <img id="namel2fontstyle06img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Book Antigua Font" title="Book Antigua Font" onclick="selectRadioOption('namel2fontstyle','F06','Book Antigua Font')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                
+                <input id="namel2fontstyle07" name="namel2fontstyle" type="radio" value="Ribbon Dak">
+                <label for="Name_Line2_Font_F07" class="medfg_txt">F07<span>.</span></label>
+                <img id="namel2fontstyle07img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Ribbon Dak" title="Ribbon Dak" onclick="selectRadioOption('namel2fontstyle','F07','Ribbon Dak')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                  
+                <input id="namel2fontstyle08" name="namel2fontstyle" type="radio" value="Monotype Corsiva">
+                <label for="Name_Line2_Font_F08" class="medfg_txt">F08<span>.</span></label>
+                <img id="namel2fontstyle08img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Monotype Corsiva" title="Monotype Corsiva" onclick="selectRadioOption('namel2fontstyle','F08','Monotype Corsiva')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                  
+                <input id="namel2fontstyle09" name="namel1fontstyle" type="radio" value="Script">
+                <label for="Name_Line2_Font_F09" class="medfg_txt">F09<span>.</span></label>
+                <img id="namel2fontstyle09img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Script" title="Script" onclick="selectRadioOption('namel2fontstyle','F09','Script')" class="font_image">
+        </div>
+        <div class="font_radio_btn_container">                  
+                <input id="namel2fontstyle10" name="namel2fontstyle" type="radio" value="Edwardian">
+                <label for="Name_Line2_Font_F10" class="medfg_txt">F10<span>.</span></label>
+                <img id="namel2fontstyle10img" src="<?php echo $this->getViewFileUrl('images/download.png'); ?>" alt="Edwardian" title="Edwardian" onclick="selectRadioOption('namel2fontstyle','F10','Edwardian')" class="font_image"> 
+        </div>
+</div>
+                <br/> 
+        <label id="choiceLabel1"> Font Style :</label>
+                </div>
+                <script type="text/javascript">
+            (function (){
+            var radios = document.getElementsByName('namel2fontstyle');
+            console.log(radios);
+            for(var i = 0; i < radios.length; i++){
+                radios[i].onclick = function(){
+                    document.getElementById('choiceLabel1').innerText = this.value;
+                }
+            }
+        })(); 
+        </script>
+<label>Thread Color 2:</label>          
+<div class="containerline2">
+  <div id="v2">  
+    <label for="Name_Line2_Color" class="mediumytr_txt">Option Selected:</label>
+      <select class="clear_on_reset32" id="namel2threadcolor" name="namel2threadcolor">
+            <option value="">Select Color</option>
+            <option value="Red">C01. Red</option>
+            <option value="Orange">C02. Orange</option>
+            <option value="Peach">C03. Peach</option>
+            <option value="Gold">C04. Gold</option>
+            <option value="Yellow">C05. Yellow</option>
+            <option value="Neon Yellow">C06. Neon Yellow</option>
+            <option value="Tan">C07. Tan</option>
+            <option value="Silver">C08. Silver</option>
+            <option value="Forest">C09. Forest</option>
+            <option value="Kelly Green">C10. Kelly Green</option>
+            <option value="Neon Green">C11. Neon Green</option>
+            <option value="Navy">C12. Navy</option>
+            <option value="Royal">C13. Royal</option>
+            <option value="Teal">C14. Teal</option>
+            <option value="Light Blue">C15. Light Blue</option>
+            <option value="White">C16. White</option>
+            <option value="Purple">C17. Purple</option>
+            <option value="Fushia">C18. Fushia</option>
+            <option value="Light Pink">C19. Light Pink</option>
+            <option value="Brown">C20. Brown</option>
+            <option value="Coffee">C21. Coffee</option>
+            <option value="Black">C22. Black</option>
+            <option value="Wine">C23. Wine</option>
+      </select>  
+    </div>
+  <div id="v3">
+<label>Color Type:</label>
+</div>
+  <script type="text/javascript">                           
+  $("#namel2threadcolor").change(function() {
+  $("#v3 label").html($(this).val());
+  });
+  </script>
+  </div> 
+    <label>Placements 2 :</label>
+<div class="linecontainer">
+<div><span class="textmedium">Embroidery placement is referred to from the vantage point of person wearing the garment.</span></div>
+<div class="radio_list_container">                                         
+        <div class=""  onclick="togglePlacementSelection('namel2placement','P1L','Left Chest')">
+            <input id="namel1placementp1l" name="namel2placement" type="radio" value="Left Chest">
+            <label for="Name_Line2_Position_P1L" class="med_txt">Left Chest</label>
+        </div>                  
+        <div class="" onclick="togglePlacementSelection('namel2placement','P1R','Right Chest')">
+            <input id="namel2placementp1r" name="namel2placement" type="radio" value="Right Chest">
+            <label for="Name_Line2_Position_P1R" class="med_txt">Right Chest</label>
+        </div>                  
+        <div class=""  onclick="togglePlacementSelection('namel2placement','P2L','Left Sleeve')">
+            <input id="namel2placementp2l" name="namel2placement" type="radio" value="Left Sleeve">
+            <label for="Name_Line2_Position_P2L" class="med_txt underline_selection">Left Sleeve</label>
+        </div>                  
+        <div class=""  onclick="togglePlacementSelection('namel2placement','P2R','Right Sleeve')">
+            <input id="namel2placementp2r" name="namel2placement" type="radio" value="Right Sleeve">
+            <label for="Name_Line2_Position_P2R" class="med_txt">Right Sleeve</label>
+        </div>                  
+    </div>
+<br/> 
+        <label id="choiceLabel2"> Placements :</label>
+</div>
+<script type="text/javascript">
+function showDiv(elem){
+    if(elem.value == 2) 
+    {
+        document.getElementById('line2').style.display = "block";}
+        else{
+           document.getElementById('line2').style.display = "none;" 
+        }
+    } 
+</script>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+$('#opt1').change(function(){
+if(this.checked)
+$('#nameemroidery').fadeIn('slow');
+else
+$('#nameemroidery').fadeOut('slow');
+});
+});
+</script>
+<label>Special instructions and/or comments:</label>
+<div>
+    <input class="input" type="text" name="namel1instruction" id="namel1instruction" maxlength="255" placeholder="Special Instruction"/>
+</div> 
+</div> 
+</div>  
+<!-- Custom Input Field -->
+<br>
+<?php //endif; 
+?>
+<div class="actions">
+<button type="submit" title="<?php /* @escapeNotVerified */ echo $buttonTitle ?>" class="action primary tocart" id="product-addtocart-button">
+        <span><?php /* @escapeNotVerified */ echo $buttonTitle ?></span>
+    </button>
+    <?php echo $block->getChildHtml('', true) ?>
+</div>
+</div>
+</div>
+<?php endif; ?>
+<?php if ($block->isRedirectToCartEnabled()) : ?>
+<script type="text/x-magento-init">
+{
+"#product_addtocart_form": {
+    "Magento_Catalog/product/view/validation": {
+        "radioCheckboxClosest": ".nested"
+    }
+}
+}
+</script>
+<?php else : ?>
+<script>
+require([
+'jquery',
+'mage/mage',
+'Magento_Catalog/product/view/validation',
+'Magento_Catalog/js/catalog-add-to-cart'
+], function ($) {
+'use strict';
+
+$('#product_addtocart_form').mage('validation', {
+    radioCheckboxClosest: '.nested',
+    submitHandler: function (form) {
+        var widget = $(form).catalogAddToCart({
+            bindSubmit: false
+        });
+
+        widget.catalogAddToCart('submitForm', $(form));
+
+        return false;
+    }
+});
+});
+</script>
+<?php endif; ?> 

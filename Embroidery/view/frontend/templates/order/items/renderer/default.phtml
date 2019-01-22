@@ -1,0 +1,108 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+/** @var  $block \Magento\Sales\Block\Order\Item\Renderer\DefaultRenderer */
+$_item = $block->getItem();
+?>
+<tr id="order-item-row-<?= /* @escapeNotVerified */ $_item->getId() ?>">
+    <td class="col name" data-th="<?= $block->escapeHtml(__('Product Name')) ?>">
+        <strong class="product name product-item-name"><?= $block->escapeHtml($_item->getName()) ?></strong>
+        <?php if ($_options = $block->getItemOptions()): ?>
+        <dl class="item-options">
+        <?php foreach ($_options as $_option) : ?>
+            <dt><?= $block->escapeHtml($_option['label']) ?></dt>
+            <?php if (!$block->getPrintStatus()): ?>
+                <?php $_formatedOptionValue = $block->getFormatedOptionValue($_option) ?>
+                <dd>
+                    <?php if (isset($_formatedOptionValue['full_view'])): ?>
+                        <?= /* @escapeNotVerified */ $_formatedOptionValue['full_view'] ?>
+                    <?php else: ?>
+                        <?= /* @escapeNotVerified */ $_formatedOptionValue['value'] ?>
+                    <?php endif; ?>
+                </dd>
+            <?php else: ?>
+                <dd>
+                    <?= nl2br($block->escapeHtml((isset($_option['print_value']) ? $_option['print_value'] : $_option['value']))) ?>
+                </dd>
+            <?php endif; ?>
+        <?php endforeach; ?>
+        <!-- $itemId =  -->
+        <?php 
+            $quote_item_id = $_item->getQuoteItemId();
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+            $connection = $resource->getConnection();
+            $magneto_quote = $resource->getTableName('magneto_quote');
+            $sql = "Select * FROM " . $magneto_quote . " WHERE quote_item_id = " . $quote_item_id;
+            $result_embroidery = $connection->fetchAll($sql);
+            if($result_embroidery != ' '){ 
+                $decode_data = array();
+                foreach($result_embroidery as $embroidery){
+                    $jsonHelper = $objectManager->get('\Magento\Framework\Json\Helper\Data');
+                    $embroidery_decode = $jsonHelper->jsonDecode($embroidery['name_embroidery']);
+                    $decode_data = $embroidery_decode;
+                }
+                foreach ($decode_data as $value_emb) { ?>
+                    <dt><?php echo $block->escapeHtml($value_emb['line']) ?></dt> 
+                    <dt><?php echo $block->escapeHtml(__('Font :  ')) ?></dt>
+                        <dd><?php echo $block->escapeHtml($value_emb['font']) ?></dd>
+                    <dt><?php echo $block->escapeHtml(__('Color :  ')) ?></dt>
+                        <dd><?php echo $block->escapeHtml($value_emb['color']) ?></dd>
+                    <dt><?php echo $block->escapeHtml(__('Placement :  ')) ?></dt>
+                        <dd><?php echo $block->escapeHtml($value_emb['placement']) ?></dd>
+                    <dt><?php echo $block->escapeHtml(__('Text :  ')) ?></dt>
+                        <dd><?php echo $block->escapeHtml($value_emb['name_text']) ?></dd>
+                    <dt><?php echo $block->escapeHtml(__('Comments :  ')) ?></dt>
+                        <dd><?php echo $block->escapeHtml($value_emb['comment']) ?></dd>
+                <?php } 
+            }
+        ?>
+        </dl>
+        <?php endif; ?>
+        <?php $addtInfoBlock = $block->getProductAdditionalInformationBlock(); ?>
+        <?php if ($addtInfoBlock) :?>
+            <?= $addtInfoBlock->setItem($_item)->toHtml() ?>
+        <?php endif; ?>
+        <?= $block->escapeHtml($_item->getDescription()) ?>
+    </td>
+    <td class="col sku" data-th="<?= $block->escapeHtml(__('SKU')) ?>"><?= /* @escapeNotVerified */ $block->prepareSku($block->getSku()) ?></td>
+    <td class="col price" data-th="<?= $block->escapeHtml(__('Price')) ?>">
+        <?= $block->getItemPriceHtml() ?>
+    </td>
+    <td class="col qty" data-th="<?= $block->escapeHtml(__('Qty')) ?>">
+        <ul class="items-qty">
+        <?php if ($block->getItem()->getQtyOrdered() > 0): ?>
+            <li class="item">
+                <span class="title"><?= /* @escapeNotVerified */ __('Ordered') ?></span>
+                <span class="content"><?= /* @escapeNotVerified */ $block->getItem()->getQtyOrdered()*1 ?></span>
+            </li>
+        <?php endif; ?>
+        <?php if ($block->getItem()->getQtyShipped() > 0): ?>
+            <li class="item">
+                <span class="title"><?= /* @escapeNotVerified */ __('Shipped') ?></span>
+                <span class="content"><?= /* @escapeNotVerified */ $block->getItem()->getQtyShipped()*1 ?></span>
+            </li>
+        <?php endif; ?>
+        <?php if ($block->getItem()->getQtyCanceled() > 0): ?>
+            <li class="item">
+                <span class="title"><?= /* @escapeNotVerified */ __('Canceled') ?></span>
+                <span class="content"><?= /* @escapeNotVerified */ $block->getItem()->getQtyCanceled()*1 ?></span>
+            </li>
+        <?php endif; ?>
+        <?php if ($block->getItem()->getQtyRefunded() > 0): ?>
+            <li class="item">
+                <span class="title"><?= /* @escapeNotVerified */ __('Refunded') ?></span>
+                <span class="content"><?= /* @escapeNotVerified */ $block->getItem()->getQtyRefunded()*1 ?></span>
+            </li>
+        <?php endif; ?>
+        </ul>
+    </td>
+    <td class="col subtotal" data-th="<?= $block->escapeHtml(__('Subtotal')) ?>">
+        <?= $block->getItemRowTotalHtml() ?>
+    </td>
+</tr>
